@@ -1,336 +1,377 @@
-<title>Ecosystem Application</title>
+<title>Read Before Applying</title>
 <style>
-/* Layout: single-column stepped public form (7 sections), posted to a
-   Google Apps Script Web App endpoint via a hidden form + iframe target
-   (no CORS/fetch needed — works from any static host). */
+/* Layout: single readable column (running text ~68ch), numbered sections
+   matching the source document's own 19-part structure, a compact jump
+   list up top, and a closing CTA into the Level 1 application. */
 :root{
   --bg:#FFFBF0; --surface:#FFFFFF; --fg:#221C12; --muted:#6B6046;
   --accent:#8A6A00; --accent-strong:#FFD51E; --border:#E7DBB8;
-  --danger:#B3441E; --ok:#3D7A3D;
+  --quote-bg:#221C12; --quote-fg:#E8DFC8;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
-    --bg:#140F09; --surface:#221C12; --fg:#E8DFC8; --muted:#A89C7B;
+    --bg:#140F09; --surface:#1B160E; --fg:#E8DFC8; --muted:#A89C7B;
     --accent:#FFD51E; --accent-strong:#FFD51E; --border:#3A3222;
-    --danger:#E08A63; --ok:#7FD19A;
+    --quote-bg:#2A2313; --quote-fg:#FFFBF0;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#140F09; --surface:#221C12; --fg:#E8DFC8; --muted:#A89C7B;
+  --bg:#140F09; --surface:#1B160E; --fg:#E8DFC8; --muted:#A89C7B;
   --accent:#FFD51E; --accent-strong:#FFD51E; --border:#3A3222;
-  --danger:#E08A63; --ok:#7FD19A;
+  --quote-bg:#2A2313; --quote-fg:#FFFBF0;
   color-scheme: dark;
 }
 *{box-sizing:border-box}
-body{background:var(--bg); color:var(--fg); font-family:'Public Sans',Arial,sans-serif; margin:0}
-.wrap{max-width:760px; margin:0 auto; padding:32px 20px 80px}
+body{background:var(--bg); color:var(--fg); font-family:'Public Sans',Arial,sans-serif; margin:0; line-height:1.6}
+.wrap{max-width:700px; margin:0 auto; padding:40px 20px 100px}
 h1,h2{font-family:'Domine',Georgia,serif; text-wrap:balance; margin:0}
+p{margin:0 0 1em}
+a{color:var(--accent)}
 
-.brand{display:flex; align-items:center; gap:10px; margin-bottom:22px}
-.brand .mark{width:34px; height:34px; border-radius:8px; background:var(--accent-strong); flex:none}
-.brand .name{font-weight:700; letter-spacing:1px; text-transform:uppercase; font-size:13px; color:var(--muted)}
+.brand{display:flex; align-items:center; gap:10px; margin-bottom:36px}
+.brand .mark{width:32px; height:32px; border-radius:8px; background:var(--accent-strong); flex:none}
+.brand .name{font-weight:700; letter-spacing:1px; text-transform:uppercase; font-size:12px; color:var(--muted)}
 
-.hero h1{font-size:clamp(24px,4vw,32px); line-height:1.2}
-.hero p{color:var(--muted); font-size:16px; margin-top:8px; line-height:1.5}
-.hero{margin-bottom:28px}
+.hero{margin-bottom:8px}
+.hero .eyebrow{font-size:14px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:10px}
+.hero h1{font-size:clamp(28px,5vw,40px); line-height:1.15}
+.hero .sub{color:var(--muted); font-size:18px; margin-top:12px; line-height:1.5}
 
-.setup-warning{background:color-mix(in srgb, var(--danger) 16%, var(--bg)); border:1px solid var(--danger); color:var(--danger); padding:12px 16px; border-radius:10px; font-size:14px; margin-bottom:22px; line-height:1.5}
+.toc{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px 24px; margin:32px 0 44px}
+.toc p.label{font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:12px}
+.toc ol{margin:0; padding-left:0; list-style:none; columns:2; column-gap:24px}
+.toc li{font-size:14px; margin-bottom:7px; break-inside:avoid}
+.toc a{color:var(--fg); text-decoration:none}
+.toc a:hover{color:var(--accent)}
+.toc .n{color:var(--muted); font-variant-numeric:tabular-nums; margin-right:6px}
 
-.progress-track{display:flex; gap:6px; margin-bottom:8px}
-.progress-track .seg{height:4px; flex:1; border-radius:2px; background:var(--border)}
-.progress-track .seg.done{background:var(--accent-strong)}
-.progress-label{font-size:13px; color:var(--muted); margin-bottom:22px; letter-spacing:.5px; text-transform:uppercase}
+section{margin:48px 0; scroll-margin-top:20px}
+section h2{font-size:24px; margin-bottom:14px}
+section h2 .num{color:var(--accent); font-variant-numeric:tabular-nums; margin-right:10px}
+h3{font-family:'Domine',Georgia,serif; font-size:18px; margin:20px 0 6px; color:var(--fg)}
 
-.card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px 24px}
-.section-note{font-size:14px; color:var(--muted); background:color-mix(in srgb, var(--accent-strong) 12%, transparent); border-left:3px solid var(--accent-strong); padding:10px 14px; border-radius:6px; margin-bottom:20px}
+ul{margin:0 0 1em; padding-left:22px}
+li{margin-bottom:6px}
 
-.field{margin-bottom:26px}
-.field:last-child{margin-bottom:0}
-.field label.q{display:block; font-weight:700; font-size:16px; margin-bottom:10px; line-height:1.4}
-.field .req{color:var(--danger); margin-left:2px}
+.flow{font-size:17px; font-weight:600; color:var(--accent); background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 18px; margin:18px 0; line-height:1.6}
 
-input[type=text], input[type=email], input[type=number], textarea{
-  width:100%; font:inherit; font-size:15px; padding:11px 13px; border-radius:10px;
-  border:1px solid var(--border); background:var(--bg); color:var(--fg);
+blockquote{background:var(--quote-bg); color:var(--quote-fg); border-radius:12px; padding:20px 24px; margin:18px 0; font-style:italic; font-size:17px; line-height:1.6}
+blockquote p{margin:0}
+
+.pathways{display:flex; gap:18px; flex-wrap:wrap}
+.pathway{flex:1; min-width:240px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px}
+.pathway h3{margin-top:0}
+
+.track-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:18px 0}
+.track{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px}
+.track h3{margin-top:0; font-size:16px}
+.track ul{margin-bottom:0; padding-left:18px; font-size:14px}
+
+.divider{height:1px; background:var(--border); margin:44px 0}
+
+.cta{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:36px 28px; text-align:center; margin-top:56px}
+.cta p{color:var(--muted); font-size:16px; max-width:480px; margin:0 auto 20px}
+.cta a.btn{display:inline-block; background:var(--accent-strong); color:#221C12; font-weight:700; font-size:16px; padding:14px 28px; border-radius:10px; text-decoration:none}
+
+@media (max-width:520px){
+  .toc ol{columns:1}
+  .track-grid{grid-template-columns:1fr}
 }
-textarea{min-height:88px; resize:vertical}
-input:focus, textarea:focus{outline:2px solid var(--accent-strong); outline-offset:1px}
-
-.options{display:flex; flex-direction:column; gap:8px}
-.opt{display:flex; align-items:flex-start; gap:10px; border:1px solid var(--border); border-radius:10px; padding:11px 13px; cursor:pointer; background:var(--bg)}
-.opt:has(input:checked){border-color:var(--accent-strong); background:color-mix(in srgb, var(--accent-strong) 14%, var(--bg))}
-.opt input{margin-top:3px; accent-color:var(--accent)}
-.opt span{font-size:15px; line-height:1.4}
-
-.nav-row{display:flex; justify-content:space-between; gap:12px; margin-top:28px}
-button{font:inherit; font-size:15px; font-weight:700; border-radius:10px; padding:12px 22px; cursor:pointer; border:1px solid transparent}
-.btn-primary{background:var(--accent-strong); color:#221C12; border-color:var(--accent-strong)}
-.btn-primary:disabled{opacity:.5; cursor:not-allowed}
-.btn-ghost{background:transparent; color:var(--fg); border-color:var(--border)}
-.btn-ghost:disabled{opacity:.3; cursor:not-allowed}
-
-.error-banner{background:color-mix(in srgb, var(--danger) 14%, var(--bg)); border:1px solid var(--danger); color:var(--danger); padding:10px 14px; border-radius:10px; font-size:14px; margin-bottom:18px}
-
-.done-screen{text-align:center; padding:50px 10px}
-.done-screen .check{width:56px; height:56px; border-radius:50%; background:var(--ok); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 18px}
-.done-screen p{color:var(--muted); font-size:16px; line-height:1.6; max-width:480px; margin:14px auto 0}
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Domine:wght@400..700&family=Public+Sans:wght@400;500;600;700&display=swap">
 
 <div class="wrap">
   <div class="brand"><div class="mark"></div><div class="name">YOSH Foundation &middot; IT &amp; Cyber Security Ecosystem</div></div>
-  <div id="setupWarning"></div>
-  <div id="applyView"></div>
+
+  <div class="hero">
+    <p class="eyebrow">Read Before Applying</p>
+    <h1>Member Orientation &amp; Participation Guide</h1>
+    <p class="sub">This is not a recruitment form. It is the document that comes before one &mdash; so you know exactly what you're joining, what we expect, and what you'll receive, before you apply.</p>
+  </div>
+
+  <div class="toc">
+    <p class="label">In this guide</p>
+    <ol>
+      <li><span class="n">1</span><a href="#s1">Welcome</a></li>
+      <li><span class="n">2</span><a href="#s2">What Are We Building?</a></li>
+      <li><span class="n">3</span><a href="#s3">Who Can Join?</a></li>
+      <li><span class="n">4</span><a href="#s4">Our Core Philosophy</a></li>
+      <li><span class="n">5</span><a href="#s5">What You'll Receive</a></li>
+      <li><span class="n">6</span><a href="#s6">What We Expect From You</a></li>
+      <li><span class="n">7</span><a href="#s7">Your Development Journey</a></li>
+      <li><span class="n">8</span><a href="#s8">The Six-Month Framework</a></li>
+      <li><span class="n">9</span><a href="#s9">Four Development Tracks</a></li>
+      <li><span class="n">10</span><a href="#s10">Three Types of Projects</a></li>
+      <li><span class="n">11</span><a href="#s11">Project-Based Development</a></li>
+      <li><span class="n">12</span><a href="#s12">Your Growth Path</a></li>
+      <li><span class="n">13</span><a href="#s13">What We Do Not Promise</a></li>
+      <li><span class="n">14</span><a href="#s14">What to Understand</a></li>
+      <li><span class="n">15</span><a href="#s15">How Recruitment Works</a></li>
+      <li><span class="n">16</span><a href="#s16">Before You Apply</a></li>
+      <li><span class="n">17</span><a href="#s17">Our Commitment to You</a></li>
+      <li><span class="n">18</span><a href="#s18">The Bigger Vision</a></li>
+      <li><span class="n">19</span><a href="#s19">Final Message</a></li>
+    </ol>
+  </div>
+
+  <section id="s1">
+    <h2><span class="num">01</span>Welcome</h2>
+    <p>Welcome to the IT &amp; Cyber Security Ecosystem.</p>
+    <p>This initiative is designed to bring together people who are interested in technology, cybersecurity, AI, data, automation and technology entrepreneurship &mdash; and help them grow through learning, practical projects, teamwork, service and leadership.</p>
+    <p>We are not building a traditional IT department where people simply receive tasks. We are building an ecosystem where:</p>
+    <div class="flow">People learn &rarr; People build &rarr; People serve &rarr; People lead &rarr; Projects grow &rarr; Products emerge &rarr; Ventures scale.</div>
+    <p>Whether you are an experienced IT professional or someone who is just beginning your journey, there can be a place for you &mdash; provided that you are willing to learn, contribute and take responsibility.</p>
+  </section>
+
+  <section id="s2">
+    <h2><span class="num">02</span>What Are We Building?</h2>
+    <p>Our long-term vision is to develop an IT &amp; Cyber Security ecosystem that can:</p>
+    <ul>
+      <li>Develop technical talent</li>
+      <li>Create practical learning opportunities</li>
+      <li>Build real technology projects</li>
+      <li>Serve the wider ecosystem</li>
+      <li>Develop cybersecurity capability</li>
+      <li>Create AI and automation solutions</li>
+      <li>Build digital products and services</li>
+      <li>Develop future technical and project leaders</li>
+      <li>Create sustainable technology ventures</li>
+      <li>Connect technical people across countries</li>
+    </ul>
+    <p>The ecosystem will gradually move from:</p>
+    <div class="flow">People &rarr; Projects &rarr; Products &rarr; Ventures &rarr; International Network</div>
+  </section>
+
+  <section id="s3">
+    <h2><span class="num">03</span>Who Can Join?</h2>
+    <p>We have two primary entry pathways.</p>
+    <div class="pathways">
+      <div class="pathway">
+        <h3>&#127793; Pathway A &mdash; Beginner / Emerging Talent</h3>
+        <p>For people who:</p>
+        <ul>
+          <li>Have an interest in IT, technology or cybersecurity</li>
+          <li>May have little or no technical experience</li>
+          <li>Want to learn</li>
+          <li>Are willing to commit time</li>
+          <li>Want practical exposure</li>
+          <li>Are willing to work with a team</li>
+        </ul>
+        <p>You do not need to be an expert. Your starting point may simply be:</p>
+        <blockquote><p>&ldquo;I am interested, but I don't yet know exactly where I fit.&rdquo;</p></blockquote>
+        <p>That's acceptable. Your journey will help you discover your strengths and develop them through structured learning and practical work.</p>
+      </div>
+      <div class="pathway">
+        <h3>&#128737;&#65039; Pathway B &mdash; Skilled Volunteer</h3>
+        <p>For people who already have:</p>
+        <ul>
+          <li>Technical knowledge</li>
+          <li>Professional experience</li>
+          <li>Practical project experience</li>
+          <li>Specialized skills</li>
+          <li>Industry knowledge</li>
+          <li>Research capability</li>
+        </ul>
+        <p>You may join not only to contribute your existing skills, but also to mentor emerging talent, lead technical initiatives, build products, create services, and participate in international collaboration.</p>
+        <p>Your experience can become a multiplier for the ecosystem.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <h2><span class="num">04</span>Our Core Philosophy</h2>
+    <p>We believe people develop best when learning and doing happen together. Therefore, our model is not:</p>
+    <blockquote><p>Learn for two years &rarr; then start working.</p></blockquote>
+    <p>Instead:</p>
+    <div class="flow">Learn &rarr; Practice &rarr; Build &rarr; Receive Feedback &rarr; Improve &rarr; Contribute &rarr; Lead</div>
+    <p>Real projects will be an important part of the development process.</p>
+  </section>
+
+  <section id="s5">
+    <h2><span class="num">05</span>What Will You Receive From Us?</h2>
+    <p>If you become a member, our responsibility is not simply to give you a title. We aim to provide a development environment where you can receive:</p>
+    <h3>1. Guidance</h3>
+    <p>Appropriate guidance according to your level and pathway.</p>
+    <h3>2. Practical Experience</h3>
+    <p>Opportunities to participate in real projects rather than relying only on theory.</p>
+    <h3>3. Mentorship</h3>
+    <p>Where appropriate, connection with experienced members who can guide your development.</p>
+    <h3>4. Team Environment</h3>
+    <p>Working with people from different backgrounds and skill levels.</p>
+    <h3>5. Project Opportunities</h3>
+    <ul>
+      <li>Software projects</li>
+      <li>Cybersecurity initiatives</li>
+      <li>AI/automation projects</li>
+      <li>Social impact projects</li>
+      <li>Service projects</li>
+      <li>Business/product projects</li>
+    </ul>
+    <h3>6. Leadership Opportunities</h3>
+    <p>As your capability and responsibility grow: leading tasks, leading teams, training others, managing projects, leading technical initiatives.</p>
+    <h3>7. Exposure to Entrepreneurship</h3>
+    <p>Members who demonstrate the appropriate capability and interest may participate in developing digital products, SaaS, technology services, AI solutions, cybersecurity services, and technology ventures.</p>
+    <h3>8. International Exposure</h3>
+    <p>As the ecosystem develops, there may be opportunities to collaborate with people, teams, partners and projects across different countries.</p>
+  </section>
+
+  <section id="s6">
+    <h2><span class="num">06</span>What We Expect From You</h2>
+    <p>Joining the ecosystem also means accepting responsibilities. We expect every member to demonstrate:</p>
+    <h3>Commitment</h3>
+    <p>If you commit a certain amount of time, make a genuine effort to maintain it.</p>
+    <h3>Responsibility</h3>
+    <p>Complete assigned tasks and communicate when you face difficulties.</p>
+    <h3>Learning Attitude</h3>
+    <p>You are not expected to know everything. You are expected to be willing to learn.</p>
+    <h3>Teamwork</h3>
+    <p>Respect other members and contribute constructively.</p>
+    <h3>Communication</h3>
+    <p>Communicate clearly, especially when you cannot complete something on time.</p>
+    <h3>Integrity</h3>
+    <p>Be honest about your skills, experience, availability and progress.</p>
+    <h3>Respect</h3>
+    <p>Respect fellow members, mentors, project leaders and the wider mission of the ecosystem.</p>
+    <h3>Initiative</h3>
+    <p>Don't always wait for someone to tell you what to do. As you grow, we expect you to identify problems, propose solutions and take ownership.</p>
+  </section>
+
+  <section id="s7">
+    <h2><span class="num">07</span>Your Development Journey</h2>
+    <p>Our development model follows a structured progression.</p>
+    <ul>
+      <li><strong>Stage 1 &mdash; Join.</strong> You apply and go through the initial selection process.</li>
+      <li><strong>Stage 2 &mdash; Counselling.</strong> We understand your current position, interests, skills, potential, availability and development goals.</li>
+      <li><strong>Stage 3 &mdash; Placement.</strong> You are placed into an appropriate Track + Project + Role + Mentor.</li>
+      <li><strong>Stage 4 &mdash; Development.</strong> You learn while participating in practical work.</li>
+      <li><strong>Stage 5 &mdash; Contribution.</strong> You become a useful contributor to a real project.</li>
+      <li><strong>Stage 6 &mdash; Leadership.</strong> With sufficient development, you may take responsibility for tasks, projects, teams, technical areas.</li>
+      <li><strong>Stage 7 &mdash; Creation.</strong> You may eventually participate in creating products, services, research, technology ventures.</li>
+      <li><strong>Stage 8 &mdash; Scale.</strong> Successful initiatives may expand beyond the original ecosystem to regional or international contexts.</li>
+    </ul>
+  </section>
+
+  <section id="s8">
+    <h2><span class="num">08</span>The Six-Month Development Framework</h2>
+    <p>The six-month journey is our common development framework, not a rigid identical curriculum for everyone. A beginner and an experienced cybersecurity professional should obviously have different objectives. Therefore:</p>
+    <blockquote><p>The framework is common; the journey is personalized.</p></blockquote>
+    <h3>Beginner</h3>
+    <p>Month 1&ndash;2: Foundation + orientation &middot; Month 3&ndash;4: Practical contribution &middot; Month 5: Increased responsibility &middot; Month 6: Evaluation + next-stage placement</p>
+    <h3>Skilled Volunteer</h3>
+    <p>Month 1&ndash;2: Integration + project placement &middot; Month 3&ndash;4: Technical contribution / mentoring &middot; Month 5: Ownership &middot; Month 6: Leadership / specialist pathway evaluation</p>
+    <p>The exact objectives will be determined during counselling.</p>
+  </section>
+
+  <section id="s9">
+    <h2><span class="num">09</span>Our Four Main Development Tracks</h2>
+    <p>You may eventually develop in one or more of the following areas. You do not necessarily need to know your final specialization when you join &mdash; your development journey can help you discover it.</p>
+    <div class="track-grid">
+      <div class="track"><h3>&#128187; Technology &amp; Software</h3><ul><li>Web development</li><li>Software engineering</li><li>Mobile development</li><li>Cloud &amp; DevOps</li><li>Systems &amp; product development</li></ul></div>
+      <div class="track"><h3>&#128737;&#65039; Cyber Security</h3><ul><li>Security awareness</li><li>Secure systems &amp; network security</li><li>Monitoring &amp; incident response</li><li>Vulnerability management</li><li>Governance, risk &amp; compliance</li></ul></div>
+      <div class="track"><h3>&#129302; AI, Data &amp; Automation</h3><ul><li>AI applications &amp; agents</li><li>Data analytics</li><li>Automation</li><li>Knowledge systems</li><li>Business intelligence</li></ul></div>
+      <div class="track"><h3>&#128640; Product &amp; Tech Entrepreneurship</h3><ul><li>Product development</li><li>SaaS &amp; technology services</li><li>Consulting</li><li>Business development</li></ul></div>
+    </div>
+  </section>
+
+  <section id="s10">
+    <h2><span class="num">10</span>Three Types of Projects</h2>
+    <p>Not every project exists for the same purpose.</p>
+    <h3>&#128994; Service Projects</h3>
+    <p>Technology created primarily to serve the organization/ecosystem &mdash; e.g. building a website, internal system or management platform. The primary objective is service and operational value.</p>
+    <h3>&#128309; Social Impact / Community-Focused Projects</h3>
+    <p>Technology developed to create broader social benefit &mdash; e.g. a platform that helps coordinate food distribution, education, community services or charitable activities. The primary objective is social impact.</p>
+    <h3>&#128992; Business Projects</h3>
+    <p>Technology developed with the potential to become a sustainable product or service &mdash; e.g. a cybersecurity service, SaaS platform or AI automation solution for businesses. The primary objective is sustainable value creation and business development.</p>
+  </section>
+
+  <section id="s11">
+    <h2><span class="num">11</span>Project-Based Development</h2>
+    <p>A project may begin small.</p>
+    <div class="flow">Local Project &rarr; Ecosystem Project &rarr; Product / Service &rarr; Regional / International Venture</div>
+    <p>This means a small project today may become something much larger tomorrow &mdash; but not every project is expected to become a business.</p>
+  </section>
+
+  <section id="s12">
+    <h2><span class="num">12</span>Your Growth Path</h2>
+    <p>Your growth is not determined only by technical skill. A possible development pathway is:</p>
+    <div class="flow">Volunteer &rarr; Ecosystem Member &rarr; Technical Contributor &rarr; Trainer / Mentor &rarr; Project Lead &rarr; Specialist Lead &rarr; Venture Builder &rarr; International Lead &rarr; Ecosystem Builder</div>
+    <p>Not everyone needs to reach every stage. Your pathway will depend on your skills, commitment, performance, interests, leadership ability, opportunities and long-term goals.</p>
+  </section>
+
+  <section id="s13">
+    <h2><span class="num">13</span>What We Do Not Promise</h2>
+    <p>We want to maintain a transparent relationship from the beginning. Joining the ecosystem does not automatically guarantee:</p>
+    <ul>
+      <li>Employment</li>
+      <li>Salary</li>
+      <li>Business investment</li>
+      <li>A leadership position</li>
+      <li>International travel</li>
+      <li>A specific technical role or project</li>
+      <li>Guaranteed financial return</li>
+    </ul>
+    <p>Opportunities will depend on the development of the ecosystem, available projects and your own demonstrated capability and commitment.</p>
+  </section>
+
+  <section id="s14">
+    <h2><span class="num">14</span>What We Expect You to Understand</h2>
+    <p>Before applying, please understand:</p>
+    <blockquote><p>This is not simply a certificate programme.<br>This is not simply an online course.<br>This is not a place where members wait for instructions indefinitely.</p></blockquote>
+    <p>It is a development and contribution ecosystem. You are expected to learn, participate, contribute and gradually take responsibility.</p>
+  </section>
+
+  <section id="s15">
+    <h2><span class="num">15</span>How the Recruitment Process Works</h2>
+    <div class="flow">Read This Guide &rarr; Level 1 Form &rarr; Initial Screening &rarr; Counselling &rarr; Development Placement &rarr; Begin Your Journey</div>
+    <p><strong>Step 1 &mdash; Read This Orientation Document.</strong> Understand our vision, your responsibilities, what we provide, the development model, and the project structure.</p>
+    <p><strong>Step 2 &mdash; Submit Level 1 Recruitment Form.</strong> We collect your basic information, interests, current experience and availability.</p>
+    <p><strong>Step 3 &mdash; Initial Screening.</strong> Our team reviews applications.</p>
+    <p><strong>Step 4 &mdash; Counselling.</strong> Shortlisted applicants participate in a deeper counselling process.</p>
+    <p><strong>Step 5 &mdash; Development Placement.</strong> We determine your Track + Role + Project + Mentor + Initial Objectives.</p>
+    <p><strong>Step 6 &mdash; Begin Your Journey.</strong> You enter the ecosystem and begin contributing according to your development plan.</p>
+  </section>
+
+  <section id="s16">
+    <h2><span class="num">16</span>Before You Apply</h2>
+    <p>Please ask yourself:</p>
+    <ul>
+      <li>Am I genuinely interested in technology/cybersecurity?</li>
+      <li>Am I willing to learn?</li>
+      <li>Can I commit the time I am promising?</li>
+      <li>Am I willing to work with others?</li>
+      <li>Can I accept feedback and correction?</li>
+      <li>Am I willing to take responsibility?</li>
+      <li>Am I interested in building something useful rather than only collecting certificates?</li>
+    </ul>
+    <p>If your answer is generally yes, we encourage you to proceed to the application process.</p>
+  </section>
+
+  <section id="s17">
+    <h2><span class="num">17</span>Our Commitment to You</h2>
+    <p>We will also hold ourselves accountable. We aim to provide:</p>
+    <div class="flow">Clarity &rarr; Guidance &rarr; Opportunity &rarr; Mentorship &rarr; Practical Experience &rarr; Feedback &rarr; Growth</div>
+    <p>We want members to know where they are going, why they are doing it and what their next step should be.</p>
+  </section>
+
+  <section id="s18">
+    <h2><span class="num">18</span>The Bigger Vision</h2>
+    <p>Our long-term objective is not simply to create a group of IT volunteers. We want to develop a connected ecosystem of Developers, Cybersecurity Specialists, AI/Data Specialists, Researchers, Product Builders, Entrepreneurs, Project Leaders and Mentors, who can contribute locally and eventually collaborate across countries.</p>
+    <p>The journey begins with an individual. Then:</p>
+    <div class="flow">Individual &rarr; Team &rarr; Project &rarr; Product &rarr; Venture &rarr; International Collaboration</div>
+  </section>
+
+  <section id="s19">
+    <h2><span class="num">19</span>Final Message</h2>
+    <p>If you join, we do not expect you to arrive already complete. You may come with skills. Or you may come with interest and potential. What matters is your willingness to learn, contribute, take responsibility and grow.</p>
+    <p>Our goal is to help turn:</p>
+    <div class="flow">Interest into Skill &rarr; Skill into Contribution &rarr; Contribution into Leadership &rarr; Leadership into Creation &rarr; Creation into Sustainable Impact</div>
+  </section>
+
+  <div class="cta">
+    <h2 style="font-size:22px; margin-bottom:10px">If this vision aligns with your expectations</h2>
+    <p>You're ready to proceed to the Level 1 Recruitment Form. It takes about 8&ndash;10 minutes.</p>
+    <a class="btn" href="https://yosh-incubator.github.io/yosh-cyber-ecosystem/apply.html">Proceed to the Application &rarr;</a>
+  </div>
 </div>
-
-<iframe name="hiddenTarget" style="display:none" title="submit target"></iframe>
-<form id="hiddenForm" method="POST" target="hiddenTarget" style="display:none"></form>
-
-<script>
-(function(){
-  "use strict";
-
-  // ---- CONFIGURE THIS ----
-  // Paste the Web App URL you get from Google Apps Script (Deploy > New
-  // deployment > Web app > Execute as: Me, Who has access: Anyone).
-  var APPS_SCRIPT_URL = 
-     "https://script.google.com/macros/s/AKfycbwKsPt5gzuKBkjf0CsP7LegwGhr4bUsE3el9z4_r5y7UP9NrGdS_zF1SRWrdhYkXhMYhQ/exec";
-  // -------------------------
-
-  var SECTIONS = [
-    { title:"Basic Information", fields:[
-      {id:"fullName", label:"Full Name", type:"text", required:true, placeholder:"e.g. Abdullah Rahman"},
-      {id:"age", label:"Age", type:"number", required:true, placeholder:"e.g. 21"},
-      {id:"gender", label:"Gender", type:"radio", required:true, options:["Male","Female","Prefer not to say"]},
-      {id:"location", label:"Country / City", type:"text", required:true, placeholder:"e.g. Cairo, Egypt"},
-      {id:"contact", label:"WhatsApp / Contact Number", type:"text", required:true, placeholder:"e.g. +20 XXX XXX XXXX"},
-      {id:"email", label:"Email Address", type:"email", required:true, placeholder:"e.g. abdullah@example.com"},
-      {id:"status", label:"Current Status", type:"radio", required:true, options:["Student","Employed","Self-employed","Entrepreneur","Looking for work","Other"]},
-      {id:"profession", label:"Current Education / Profession", type:"text", required:true, placeholder:"e.g. Computer Science Student"},
-      {id:"organization", label:"Organization / Institution", type:"text", required:false, placeholder:"e.g. Al-Azhar University (optional)"}
-    ]},
-    { title:"Interest & Motivation", fields:[
-      {id:"whyInterested", label:"Why are you interested in joining our IT & Cyber Security Ecosystem?", type:"textarea", required:true, placeholder:"I want to develop my technology skills through practical projects and contribute to meaningful work."},
-      {id:"areaInterest", label:"Which area are you currently most interested in?", type:"radio", required:true, options:["💻 Technology & Software","🛡️ Cyber Security","🤖 AI, Data & Automation","🚀 Product & Technology Entrepreneurship","More than one","I am not sure yet"]},
-      {id:"attraction", label:"What attracts you to this area?", type:"textarea", required:true, placeholder:"I am interested in software development because I enjoy solving problems through technology."}
-    ]},
-    { title:"Current Skill & Experience", note:"This is the most important screening section — it's how we tell Beginners and Skilled Volunteers apart.", fields:[
-      {id:"experienceLevel", label:"How would you describe your current IT/technical experience?", type:"radio", required:true, options:["🌱 No experience / Complete beginner","🟢 Basic knowledge","🟡 Some practical experience","🔵 Intermediate","🟣 Advanced / Professional"]},
-      {id:"areasStudied", label:"Which IT/Cyber areas have you previously studied or practiced?", type:"checkbox", required:false, options:["Web Development","Mobile Development","Software Engineering","Cyber Security","Networking","Cloud / DevOps","AI / Machine Learning","Data / Analytics","Automation","UI/UX / Design","Project Management","None","Other"]},
-      {id:"experienceDescription", label:"Briefly describe your previous IT/Cyber experience, if any.", type:"textarea", required:false, placeholder:"I completed a basic web development course and built two small websites."},
-      {id:"portfolio", label:"Do you have any portfolio, GitHub, website, certificate or other relevant work to share?", type:"text", required:false, placeholder:"github.com/username"}
-    ]},
-    { title:"Availability & Commitment", fields:[
-      {id:"hoursPerWeek", label:"How much time can you realistically contribute each week?", type:"radio", required:true, options:["Less than 2 hours","2–3 hours","4–6 hours","7–10 hours","10+ hours"]},
-      {id:"availability", label:"When are you generally available?", type:"checkbox", required:true, options:["Weekday mornings","Weekday afternoons","Weekday evenings","Friday","Saturday","Sunday","Flexible"]},
-      {id:"consistentParticipation", label:"Are you willing to participate consistently in team activities and projects?", type:"radio", required:true, options:["Yes","Probably","I need more information"]},
-      {id:"regularCommitments", label:"Are there any regular commitments that may affect your availability?", type:"textarea", required:false, placeholder:"My university exams may temporarily reduce my availability."}
-    ]},
-    { title:"Basic Orientation", fields:[
-      {id:"projectType", label:"Which type of project would you currently be most interested in?", type:"radio", required:true, options:["🟢 Service Project — technology for the Foundation/ecosystem","🔵 Social Impact Project — technology for community/social benefit","🟠 Business Project — technology products/services with sustainable business potential","Not sure yet"]},
-      {id:"roleInterest", label:"Which role currently interests you most?", type:"radio", required:true, options:["Technical / Development","Cyber Security","AI / Data / Automation","Research","Design","Project Management","Business / Entrepreneurship","Not sure yet"]},
-      {id:"realProjects", label:"Would you be interested in learning through real projects rather than only theoretical training?", type:"radio", required:true, options:["Yes","Maybe","I need more information"]}
-    ]},
-    { title:"Basic Commitment & Expectations", fields:[
-      {id:"hopeGain", label:"What do you hope to gain from joining this ecosystem?", type:"textarea", required:true, placeholder:"I want to develop practical skills, work with experienced people and contribute to real projects."},
-      {id:"hopeContribute", label:"What do you hope to contribute to the ecosystem?", type:"textarea", required:true, placeholder:"I can contribute my time, willingness to learn and teamwork."},
-      {id:"structuredJourney", label:"Are you interested in developing yourself through a structured journey over several months?", type:"radio", required:true, options:["Yes","Maybe","I need more information"]},
-      {id:"anythingElse", label:"Is there anything else you would like us to know about you?", type:"textarea", required:false, placeholder:"I am a complete beginner, but I am highly motivated to learn and contribute."}
-    ]},
-    { title:"Applicant Confirmation", fields:[
-      {id:"agreeNotMembership", label:"I understand that submitting this form does not automatically mean membership; shortlisted applicants may be invited for a counselling session.", type:"agree", required:true},
-      {id:"agreeAccurate", label:"I confirm that the information provided above is accurate to the best of my knowledge.", type:"agree", required:true}
-    ]}
-  ];
-
-  var state = {};
-  var step = 0;
-  var submitted = false;
-  var errorMsg = "";
-
-  var applyEl = document.getElementById("applyView");
-
-  function esc(s){
-    var d = document.createElement("div");
-    d.textContent = s == null ? "" : String(s);
-    return d.innerHTML;
-  }
-
-  function fieldValid(f){
-    if(!f.required) return true;
-    var v = state[f.id];
-    if(f.type === "checkbox") return Array.isArray(v) && v.length > 0;
-    if(f.type === "agree") return v === true;
-    if(v == null) return false;
-    return String(v).trim().length > 0;
-  }
-
-  function sectionValid(idx){
-    return SECTIONS[idx].fields.every(fieldValid);
-  }
-
-  function renderField(f){
-    var val = state[f.id];
-    var reqMark = f.required ? '<span class="req">*</span>' : "";
-    var html = '<div class="field" data-fid="'+f.id+'">';
-    html += '<label class="q">'+esc(f.label)+reqMark+'</label>';
-
-    if(f.type === "text" || f.type === "email" || f.type === "number"){
-      html += '<input type="'+f.type+'" id="f_'+f.id+'" placeholder="'+esc(f.placeholder||"")+'" value="'+esc(val||"")+'">';
-    } else if(f.type === "textarea"){
-      html += '<textarea id="f_'+f.id+'" placeholder="'+esc(f.placeholder||"")+'">'+esc(val||"")+'</textarea>';
-    } else if(f.type === "radio"){
-      html += '<div class="options">';
-      f.options.forEach(function(opt){
-        var checked = val === opt ? "checked" : "";
-        html += '<label class="opt"><input type="radio" name="f_'+f.id+'" value="'+esc(opt)+'" '+checked+'><span>'+esc(opt)+'</span></label>';
-      });
-      html += '</div>';
-    } else if(f.type === "checkbox"){
-      html += '<div class="options">';
-      f.options.forEach(function(opt){
-        var checked = Array.isArray(val) && val.indexOf(opt) > -1 ? "checked" : "";
-        html += '<label class="opt"><input type="checkbox" data-group="f_'+f.id+'" value="'+esc(opt)+'" '+checked+'><span>'+esc(opt)+'</span></label>';
-      });
-      html += '</div>';
-    } else if(f.type === "agree"){
-      var checked2 = val === true ? "checked" : "";
-      html += '<label class="opt"><input type="checkbox" id="f_'+f.id+'" '+checked2+'><span>I Agree</span></label>';
-    }
-    html += '</div>';
-    return html;
-  }
-
-  function renderApply(){
-    if(submitted){
-      applyEl.innerHTML =
-        '<div class="card done-screen">'+
-          '<div class="check">✓</div>'+
-          '<h2>Application received</h2>'+
-          '<p>Thank you for applying to the IT &amp; Cyber Security Ecosystem. Submitting this form does not automatically mean membership — shortlisted applicants will be invited for a Level 2 counselling session, where track, mentor and first project get decided.</p>'+
-        '</div>';
-      return;
-    }
-
-    var sec = SECTIONS[step];
-    var segs = "";
-    for(var i=0;i<SECTIONS.length;i++){ segs += '<div class="seg'+(i<=step?" done":"")+'"></div>'; }
-
-    var html = '';
-    html += '<div class="hero"><h1>IT &amp; Cyber Security Ecosystem</h1><p>Recruitment &amp; Initial Screening — Level 1. This takes about 8–10 minutes. We just want to know who you are, why you’re interested, what you already have, how much you can contribute, and what you’re looking for.</p></div>';
-    html += '<div class="progress-track">'+segs+'</div>';
-    html += '<div class="progress-label">Section '+(step+1)+' of '+SECTIONS.length+' — '+esc(sec.title)+'</div>';
-    html += '<div class="card">';
-    if(sec.note) html += '<div class="section-note">'+esc(sec.note)+'</div>';
-    if(errorMsg) html += '<div class="error-banner">'+esc(errorMsg)+'</div>';
-    sec.fields.forEach(function(f){ html += renderField(f); });
-    html += '</div>';
-    html += '<div class="nav-row">';
-    html += '<button class="btn-ghost" id="btnBack" '+(step===0?"disabled":"")+'>Back</button>';
-    html += '<button class="btn-primary" id="btnNext">'+(step===SECTIONS.length-1?"Submit Application":"Next")+'</button>';
-    html += '</div>';
-
-    applyEl.innerHTML = html;
-    wireApplyInputs(sec);
-
-    document.getElementById("btnBack").addEventListener("click", function(){
-      if(step>0){ step--; errorMsg=""; renderApply(); window.scrollTo(0,0); }
-    });
-    document.getElementById("btnNext").addEventListener("click", onNext);
-  }
-
-  function wireApplyInputs(sec){
-    sec.fields.forEach(function(f){
-      if(f.type==="text"||f.type==="email"||f.type==="number"||f.type==="textarea"){
-        var el = document.getElementById("f_"+f.id);
-        el.addEventListener("input", function(){ state[f.id]=el.value; });
-      } else if(f.type==="radio"){
-        var radios = applyEl.querySelectorAll('input[name="f_'+f.id+'"]');
-        radios.forEach(function(r){
-          r.addEventListener("change", function(){ state[f.id]=r.value; });
-        });
-      } else if(f.type==="checkbox"){
-        var boxes = applyEl.querySelectorAll('input[data-group="f_'+f.id+'"]');
-        boxes.forEach(function(b){
-          b.addEventListener("change", function(){
-            var arr = Array.isArray(state[f.id]) ? state[f.id].slice() : [];
-            if(b.checked){ if(arr.indexOf(b.value)===-1) arr.push(b.value); }
-            else { arr = arr.filter(function(v){ return v!==b.value; }); }
-            state[f.id]=arr;
-          });
-        });
-      } else if(f.type==="agree"){
-        var chk = document.getElementById("f_"+f.id);
-        chk.addEventListener("change", function(){ state[f.id]=chk.checked; });
-      }
-    });
-  }
-
-  function onNext(){
-    if(!sectionValid(step)){
-      errorMsg = "Please answer every required question before continuing.";
-      renderApply();
-      window.scrollTo(0,0);
-      return;
-    }
-    errorMsg = "";
-    if(step < SECTIONS.length - 1){
-      step++;
-      renderApply();
-      window.scrollTo(0,0);
-    } else {
-      doSubmit();
-    }
-  }
-
-  function doSubmit(){
-    var btn = document.getElementById("btnNext");
-    if(btn){ btn.disabled = true; btn.textContent = "Submitting…"; }
-
-    var form = document.getElementById("hiddenForm");
-    form.innerHTML = "";
-    form.action = APPS_SCRIPT_URL;
-
-    var payload = {};
-    SECTIONS.forEach(function(sec){
-      sec.fields.forEach(function(f){
-        var v = state[f.id];
-        if(f.type === "checkbox"){ payload[f.id] = Array.isArray(v) ? v.join("; ") : ""; }
-        else if(f.type === "agree"){ payload[f.id] = v === true ? "Yes" : ""; }
-        else { payload[f.id] = v != null ? v : ""; }
-      });
-    });
-
-    Object.keys(payload).forEach(function(key){
-      var input = document.createElement("input");
-      input.type = "hidden";
-      input.name = key;
-      input.value = payload[key];
-      form.appendChild(input);
-    });
-
-    var iframe = document.querySelector('iframe[name="hiddenTarget"]');
-    var finished = false;
-    function onDone(){
-      if(finished) return;
-      finished = true;
-      submitted = true;
-      renderApply();
-      window.scrollTo(0,0);
-    }
-    iframe.addEventListener("load", onDone, {once:true});
-    setTimeout(onDone, 2500); // fallback in case the load event doesn't fire
-
-    form.submit();
-  }
-
-  renderApply();
-
-  if(APPS_SCRIPT_URL.indexOf("REPLACE_WITH") === 0){
-    document.getElementById("setupWarning").innerHTML =
-      '<div class="setup-warning"><strong>Setup needed:</strong> this form is not yet connected to a Google Sheet. Deploy the Apps Script Web App, then replace APPS_SCRIPT_URL near the top of this file’s &lt;script&gt; with your deployment URL.</div>';
-  }
-})();
-</script>
