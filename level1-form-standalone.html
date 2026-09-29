@@ -1,0 +1,335 @@
+<title>Ecosystem Application</title>
+<style>
+/* Layout: single-column stepped public form (7 sections), posted to a
+   Google Apps Script Web App endpoint via a hidden form + iframe target
+   (no CORS/fetch needed — works from any static host). */
+:root{
+  --bg:#FFFBF0; --surface:#FFFFFF; --fg:#221C12; --muted:#6B6046;
+  --accent:#8A6A00; --accent-strong:#FFD51E; --border:#E7DBB8;
+  --danger:#B3441E; --ok:#3D7A3D;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#140F09; --surface:#221C12; --fg:#E8DFC8; --muted:#A89C7B;
+    --accent:#FFD51E; --accent-strong:#FFD51E; --border:#3A3222;
+    --danger:#E08A63; --ok:#7FD19A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#140F09; --surface:#221C12; --fg:#E8DFC8; --muted:#A89C7B;
+  --accent:#FFD51E; --accent-strong:#FFD51E; --border:#3A3222;
+  --danger:#E08A63; --ok:#7FD19A;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--fg); font-family:'Public Sans',Arial,sans-serif; margin:0}
+.wrap{max-width:760px; margin:0 auto; padding:32px 20px 80px}
+h1,h2{font-family:'Domine',Georgia,serif; text-wrap:balance; margin:0}
+
+.brand{display:flex; align-items:center; gap:10px; margin-bottom:22px}
+.brand .mark{width:34px; height:34px; border-radius:8px; background:var(--accent-strong); flex:none}
+.brand .name{font-weight:700; letter-spacing:1px; text-transform:uppercase; font-size:13px; color:var(--muted)}
+
+.hero h1{font-size:clamp(24px,4vw,32px); line-height:1.2}
+.hero p{color:var(--muted); font-size:16px; margin-top:8px; line-height:1.5}
+.hero{margin-bottom:28px}
+
+.setup-warning{background:color-mix(in srgb, var(--danger) 16%, var(--bg)); border:1px solid var(--danger); color:var(--danger); padding:12px 16px; border-radius:10px; font-size:14px; margin-bottom:22px; line-height:1.5}
+
+.progress-track{display:flex; gap:6px; margin-bottom:8px}
+.progress-track .seg{height:4px; flex:1; border-radius:2px; background:var(--border)}
+.progress-track .seg.done{background:var(--accent-strong)}
+.progress-label{font-size:13px; color:var(--muted); margin-bottom:22px; letter-spacing:.5px; text-transform:uppercase}
+
+.card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px 24px}
+.section-note{font-size:14px; color:var(--muted); background:color-mix(in srgb, var(--accent-strong) 12%, transparent); border-left:3px solid var(--accent-strong); padding:10px 14px; border-radius:6px; margin-bottom:20px}
+
+.field{margin-bottom:26px}
+.field:last-child{margin-bottom:0}
+.field label.q{display:block; font-weight:700; font-size:16px; margin-bottom:10px; line-height:1.4}
+.field .req{color:var(--danger); margin-left:2px}
+
+input[type=text], input[type=email], input[type=number], textarea{
+  width:100%; font:inherit; font-size:15px; padding:11px 13px; border-radius:10px;
+  border:1px solid var(--border); background:var(--bg); color:var(--fg);
+}
+textarea{min-height:88px; resize:vertical}
+input:focus, textarea:focus{outline:2px solid var(--accent-strong); outline-offset:1px}
+
+.options{display:flex; flex-direction:column; gap:8px}
+.opt{display:flex; align-items:flex-start; gap:10px; border:1px solid var(--border); border-radius:10px; padding:11px 13px; cursor:pointer; background:var(--bg)}
+.opt:has(input:checked){border-color:var(--accent-strong); background:color-mix(in srgb, var(--accent-strong) 14%, var(--bg))}
+.opt input{margin-top:3px; accent-color:var(--accent)}
+.opt span{font-size:15px; line-height:1.4}
+
+.nav-row{display:flex; justify-content:space-between; gap:12px; margin-top:28px}
+button{font:inherit; font-size:15px; font-weight:700; border-radius:10px; padding:12px 22px; cursor:pointer; border:1px solid transparent}
+.btn-primary{background:var(--accent-strong); color:#221C12; border-color:var(--accent-strong)}
+.btn-primary:disabled{opacity:.5; cursor:not-allowed}
+.btn-ghost{background:transparent; color:var(--fg); border-color:var(--border)}
+.btn-ghost:disabled{opacity:.3; cursor:not-allowed}
+
+.error-banner{background:color-mix(in srgb, var(--danger) 14%, var(--bg)); border:1px solid var(--danger); color:var(--danger); padding:10px 14px; border-radius:10px; font-size:14px; margin-bottom:18px}
+
+.done-screen{text-align:center; padding:50px 10px}
+.done-screen .check{width:56px; height:56px; border-radius:50%; background:var(--ok); color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; margin:0 auto 18px}
+.done-screen p{color:var(--muted); font-size:16px; line-height:1.6; max-width:480px; margin:14px auto 0}
+</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Domine:wght@400..700&family=Public+Sans:wght@400;500;600;700&display=swap">
+
+<div class="wrap">
+  <div class="brand"><div class="mark"></div><div class="name">YOSH Foundation &middot; IT &amp; Cyber Security Ecosystem</div></div>
+  <div id="setupWarning"></div>
+  <div id="applyView"></div>
+</div>
+
+<iframe name="hiddenTarget" style="display:none" title="submit target"></iframe>
+<form id="hiddenForm" method="POST" target="hiddenTarget" style="display:none"></form>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---- CONFIGURE THIS ----
+  // Paste the Web App URL you get from Google Apps Script (Deploy > New
+  // deployment > Web app > Execute as: Me, Who has access: Anyone).
+  var APPS_SCRIPT_URL = "REPLACE_WITH_YOUR_APPS_SCRIPT_URL";
+  // -------------------------
+
+  var SECTIONS = [
+    { title:"Basic Information", fields:[
+      {id:"fullName", label:"Full Name", type:"text", required:true, placeholder:"e.g. Abdullah Rahman"},
+      {id:"age", label:"Age", type:"number", required:true, placeholder:"e.g. 21"},
+      {id:"gender", label:"Gender", type:"radio", required:true, options:["Male","Female","Prefer not to say"]},
+      {id:"location", label:"Country / City", type:"text", required:true, placeholder:"e.g. Cairo, Egypt"},
+      {id:"contact", label:"WhatsApp / Contact Number", type:"text", required:true, placeholder:"e.g. +20 XXX XXX XXXX"},
+      {id:"email", label:"Email Address", type:"email", required:true, placeholder:"e.g. abdullah@example.com"},
+      {id:"status", label:"Current Status", type:"radio", required:true, options:["Student","Employed","Self-employed","Entrepreneur","Looking for work","Other"]},
+      {id:"profession", label:"Current Education / Profession", type:"text", required:true, placeholder:"e.g. Computer Science Student"},
+      {id:"organization", label:"Organization / Institution", type:"text", required:false, placeholder:"e.g. Al-Azhar University (optional)"}
+    ]},
+    { title:"Interest & Motivation", fields:[
+      {id:"whyInterested", label:"Why are you interested in joining our IT & Cyber Security Ecosystem?", type:"textarea", required:true, placeholder:"I want to develop my technology skills through practical projects and contribute to meaningful work."},
+      {id:"areaInterest", label:"Which area are you currently most interested in?", type:"radio", required:true, options:["💻 Technology & Software","🛡️ Cyber Security","🤖 AI, Data & Automation","🚀 Product & Technology Entrepreneurship","More than one","I am not sure yet"]},
+      {id:"attraction", label:"What attracts you to this area?", type:"textarea", required:true, placeholder:"I am interested in software development because I enjoy solving problems through technology."}
+    ]},
+    { title:"Current Skill & Experience", note:"This is the most important screening section — it's how we tell Beginners and Skilled Volunteers apart.", fields:[
+      {id:"experienceLevel", label:"How would you describe your current IT/technical experience?", type:"radio", required:true, options:["🌱 No experience / Complete beginner","🟢 Basic knowledge","🟡 Some practical experience","🔵 Intermediate","🟣 Advanced / Professional"]},
+      {id:"areasStudied", label:"Which IT/Cyber areas have you previously studied or practiced?", type:"checkbox", required:false, options:["Web Development","Mobile Development","Software Engineering","Cyber Security","Networking","Cloud / DevOps","AI / Machine Learning","Data / Analytics","Automation","UI/UX / Design","Project Management","None","Other"]},
+      {id:"experienceDescription", label:"Briefly describe your previous IT/Cyber experience, if any.", type:"textarea", required:false, placeholder:"I completed a basic web development course and built two small websites."},
+      {id:"portfolio", label:"Do you have any portfolio, GitHub, website, certificate or other relevant work to share?", type:"text", required:false, placeholder:"github.com/username"}
+    ]},
+    { title:"Availability & Commitment", fields:[
+      {id:"hoursPerWeek", label:"How much time can you realistically contribute each week?", type:"radio", required:true, options:["Less than 2 hours","2–3 hours","4–6 hours","7–10 hours","10+ hours"]},
+      {id:"availability", label:"When are you generally available?", type:"checkbox", required:true, options:["Weekday mornings","Weekday afternoons","Weekday evenings","Friday","Saturday","Sunday","Flexible"]},
+      {id:"consistentParticipation", label:"Are you willing to participate consistently in team activities and projects?", type:"radio", required:true, options:["Yes","Probably","I need more information"]},
+      {id:"regularCommitments", label:"Are there any regular commitments that may affect your availability?", type:"textarea", required:false, placeholder:"My university exams may temporarily reduce my availability."}
+    ]},
+    { title:"Basic Orientation", fields:[
+      {id:"projectType", label:"Which type of project would you currently be most interested in?", type:"radio", required:true, options:["🟢 Service Project — technology for the Foundation/ecosystem","🔵 Social Impact Project — technology for community/social benefit","🟠 Business Project — technology products/services with sustainable business potential","Not sure yet"]},
+      {id:"roleInterest", label:"Which role currently interests you most?", type:"radio", required:true, options:["Technical / Development","Cyber Security","AI / Data / Automation","Research","Design","Project Management","Business / Entrepreneurship","Not sure yet"]},
+      {id:"realProjects", label:"Would you be interested in learning through real projects rather than only theoretical training?", type:"radio", required:true, options:["Yes","Maybe","I need more information"]}
+    ]},
+    { title:"Basic Commitment & Expectations", fields:[
+      {id:"hopeGain", label:"What do you hope to gain from joining this ecosystem?", type:"textarea", required:true, placeholder:"I want to develop practical skills, work with experienced people and contribute to real projects."},
+      {id:"hopeContribute", label:"What do you hope to contribute to the ecosystem?", type:"textarea", required:true, placeholder:"I can contribute my time, willingness to learn and teamwork."},
+      {id:"structuredJourney", label:"Are you interested in developing yourself through a structured journey over several months?", type:"radio", required:true, options:["Yes","Maybe","I need more information"]},
+      {id:"anythingElse", label:"Is there anything else you would like us to know about you?", type:"textarea", required:false, placeholder:"I am a complete beginner, but I am highly motivated to learn and contribute."}
+    ]},
+    { title:"Applicant Confirmation", fields:[
+      {id:"agreeNotMembership", label:"I understand that submitting this form does not automatically mean membership; shortlisted applicants may be invited for a counselling session.", type:"agree", required:true},
+      {id:"agreeAccurate", label:"I confirm that the information provided above is accurate to the best of my knowledge.", type:"agree", required:true}
+    ]}
+  ];
+
+  var state = {};
+  var step = 0;
+  var submitted = false;
+  var errorMsg = "";
+
+  var applyEl = document.getElementById("applyView");
+
+  function esc(s){
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+
+  function fieldValid(f){
+    if(!f.required) return true;
+    var v = state[f.id];
+    if(f.type === "checkbox") return Array.isArray(v) && v.length > 0;
+    if(f.type === "agree") return v === true;
+    if(v == null) return false;
+    return String(v).trim().length > 0;
+  }
+
+  function sectionValid(idx){
+    return SECTIONS[idx].fields.every(fieldValid);
+  }
+
+  function renderField(f){
+    var val = state[f.id];
+    var reqMark = f.required ? '<span class="req">*</span>' : "";
+    var html = '<div class="field" data-fid="'+f.id+'">';
+    html += '<label class="q">'+esc(f.label)+reqMark+'</label>';
+
+    if(f.type === "text" || f.type === "email" || f.type === "number"){
+      html += '<input type="'+f.type+'" id="f_'+f.id+'" placeholder="'+esc(f.placeholder||"")+'" value="'+esc(val||"")+'">';
+    } else if(f.type === "textarea"){
+      html += '<textarea id="f_'+f.id+'" placeholder="'+esc(f.placeholder||"")+'">'+esc(val||"")+'</textarea>';
+    } else if(f.type === "radio"){
+      html += '<div class="options">';
+      f.options.forEach(function(opt){
+        var checked = val === opt ? "checked" : "";
+        html += '<label class="opt"><input type="radio" name="f_'+f.id+'" value="'+esc(opt)+'" '+checked+'><span>'+esc(opt)+'</span></label>';
+      });
+      html += '</div>';
+    } else if(f.type === "checkbox"){
+      html += '<div class="options">';
+      f.options.forEach(function(opt){
+        var checked = Array.isArray(val) && val.indexOf(opt) > -1 ? "checked" : "";
+        html += '<label class="opt"><input type="checkbox" data-group="f_'+f.id+'" value="'+esc(opt)+'" '+checked+'><span>'+esc(opt)+'</span></label>';
+      });
+      html += '</div>';
+    } else if(f.type === "agree"){
+      var checked2 = val === true ? "checked" : "";
+      html += '<label class="opt"><input type="checkbox" id="f_'+f.id+'" '+checked2+'><span>I Agree</span></label>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderApply(){
+    if(submitted){
+      applyEl.innerHTML =
+        '<div class="card done-screen">'+
+          '<div class="check">✓</div>'+
+          '<h2>Application received</h2>'+
+          '<p>Thank you for applying to the IT &amp; Cyber Security Ecosystem. Submitting this form does not automatically mean membership — shortlisted applicants will be invited for a Level 2 counselling session, where track, mentor and first project get decided.</p>'+
+        '</div>';
+      return;
+    }
+
+    var sec = SECTIONS[step];
+    var segs = "";
+    for(var i=0;i<SECTIONS.length;i++){ segs += '<div class="seg'+(i<=step?" done":"")+'"></div>'; }
+
+    var html = '';
+    html += '<div class="hero"><h1>IT &amp; Cyber Security Ecosystem</h1><p>Recruitment &amp; Initial Screening — Level 1. This takes about 8–10 minutes. We just want to know who you are, why you’re interested, what you already have, how much you can contribute, and what you’re looking for.</p></div>';
+    html += '<div class="progress-track">'+segs+'</div>';
+    html += '<div class="progress-label">Section '+(step+1)+' of '+SECTIONS.length+' — '+esc(sec.title)+'</div>';
+    html += '<div class="card">';
+    if(sec.note) html += '<div class="section-note">'+esc(sec.note)+'</div>';
+    if(errorMsg) html += '<div class="error-banner">'+esc(errorMsg)+'</div>';
+    sec.fields.forEach(function(f){ html += renderField(f); });
+    html += '</div>';
+    html += '<div class="nav-row">';
+    html += '<button class="btn-ghost" id="btnBack" '+(step===0?"disabled":"")+'>Back</button>';
+    html += '<button class="btn-primary" id="btnNext">'+(step===SECTIONS.length-1?"Submit Application":"Next")+'</button>';
+    html += '</div>';
+
+    applyEl.innerHTML = html;
+    wireApplyInputs(sec);
+
+    document.getElementById("btnBack").addEventListener("click", function(){
+      if(step>0){ step--; errorMsg=""; renderApply(); window.scrollTo(0,0); }
+    });
+    document.getElementById("btnNext").addEventListener("click", onNext);
+  }
+
+  function wireApplyInputs(sec){
+    sec.fields.forEach(function(f){
+      if(f.type==="text"||f.type==="email"||f.type==="number"||f.type==="textarea"){
+        var el = document.getElementById("f_"+f.id);
+        el.addEventListener("input", function(){ state[f.id]=el.value; });
+      } else if(f.type==="radio"){
+        var radios = applyEl.querySelectorAll('input[name="f_'+f.id+'"]');
+        radios.forEach(function(r){
+          r.addEventListener("change", function(){ state[f.id]=r.value; });
+        });
+      } else if(f.type==="checkbox"){
+        var boxes = applyEl.querySelectorAll('input[data-group="f_'+f.id+'"]');
+        boxes.forEach(function(b){
+          b.addEventListener("change", function(){
+            var arr = Array.isArray(state[f.id]) ? state[f.id].slice() : [];
+            if(b.checked){ if(arr.indexOf(b.value)===-1) arr.push(b.value); }
+            else { arr = arr.filter(function(v){ return v!==b.value; }); }
+            state[f.id]=arr;
+          });
+        });
+      } else if(f.type==="agree"){
+        var chk = document.getElementById("f_"+f.id);
+        chk.addEventListener("change", function(){ state[f.id]=chk.checked; });
+      }
+    });
+  }
+
+  function onNext(){
+    if(!sectionValid(step)){
+      errorMsg = "Please answer every required question before continuing.";
+      renderApply();
+      window.scrollTo(0,0);
+      return;
+    }
+    errorMsg = "";
+    if(step < SECTIONS.length - 1){
+      step++;
+      renderApply();
+      window.scrollTo(0,0);
+    } else {
+      doSubmit();
+    }
+  }
+
+  function doSubmit(){
+    var btn = document.getElementById("btnNext");
+    if(btn){ btn.disabled = true; btn.textContent = "Submitting…"; }
+
+    var form = document.getElementById("hiddenForm");
+    form.innerHTML = "";
+    form.action = APPS_SCRIPT_URL;
+
+    var payload = {};
+    SECTIONS.forEach(function(sec){
+      sec.fields.forEach(function(f){
+        var v = state[f.id];
+        if(f.type === "checkbox"){ payload[f.id] = Array.isArray(v) ? v.join("; ") : ""; }
+        else if(f.type === "agree"){ payload[f.id] = v === true ? "Yes" : ""; }
+        else { payload[f.id] = v != null ? v : ""; }
+      });
+    });
+
+    Object.keys(payload).forEach(function(key){
+      var input = document.createElement("input");
+      input.type = "hidden";
+      input.name = key;
+      input.value = payload[key];
+      form.appendChild(input);
+    });
+
+    var iframe = document.querySelector('iframe[name="hiddenTarget"]');
+    var finished = false;
+    function onDone(){
+      if(finished) return;
+      finished = true;
+      submitted = true;
+      renderApply();
+      window.scrollTo(0,0);
+    }
+    iframe.addEventListener("load", onDone, {once:true});
+    setTimeout(onDone, 2500); // fallback in case the load event doesn't fire
+
+    form.submit();
+  }
+
+  renderApply();
+
+  if(APPS_SCRIPT_URL.indexOf("REPLACE_WITH") === 0){
+    document.getElementById("setupWarning").innerHTML =
+      '<div class="setup-warning"><strong>Setup needed:</strong> this form is not yet connected to a Google Sheet. Deploy the Apps Script Web App, then replace APPS_SCRIPT_URL near the top of this file’s &lt;script&gt; with your deployment URL.</div>';
+  }
+})();
+</script>
